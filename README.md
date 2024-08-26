@@ -50,6 +50,10 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the MIT License.
 
+## 🧑‍💻 Developer
+
+Developed by Julian Grande
+
 ---
 
 💡 Need help? Open an issue or contact [me via email](mailto:juliangr@stud.ntnu.no)
