@@ -12,14 +12,40 @@
 
 ## 🛠️ Installation
 
-1. Ensure you have Rust installed
-2. Clone this repository
-3. Run `cargo build --release`
+Ensure you have Rust and cargo installed on your system.
+You also need the 1Password CLI installed on your system.
+
+```bash
+# Install 1Password CLI using your package manager (apt, yum, alpine, brew)
+brew install --cask 1password-cli
+
+# Authenticate using the 1Password CLI
+eval $(op login)
+
+# Install the application
+cargo install sendenv
+```
+
+Thats it! 🙌
 
 ## 🚀 Usage
 
 ```bash
 sendenv [OPTIONS] --path <PATH_TO_FILE>
+```
+
+### 📝 Example usage
+
+```bash
+# Uploads and creates a link for the `.env` file in the current directory
+sendenv
+
+# Uploads and creates a link for file `.env.development` in the cwd
+sendenv -p env.development
+
+# Uploads and shares link that can only be displayed once
+# and which requires email verification from "example@user.com"
+sendenv --email=example@user.com --display-once
 ```
 
 ### 🎛️ Options
@@ -28,15 +54,15 @@ sendenv [OPTIONS] --path <PATH_TO_FILE>
 - `-e, --email <EMAIL>`: Require email to access the shared note
 - `-d, --display-once`: Make the link expire after a single use
 
-## 🔑 Prerequisites
-
-- 1Password CLI installed and configured
-- Active 1Password session (`eval $(op signin)`)
-
 ## 📚 Dependencies
 
 - 🤖 Clap - a tool that simplifies the creation of CLI applications
 - 📋 Arboard - a tool that streamlines clipboard management
+
+## 🔑 Prerequisites
+
+- 1Password CLI installed and configured
+- Active 1Password session (`eval $(op signin)`)
 
 ## 🛡️ Security
 
