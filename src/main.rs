@@ -1,11 +1,10 @@
+use arboard::Clipboard;
+use clap::Parser;
 use std::process;
 use std::{
     fs::{read_to_string, File},
     process::Command,
 };
-
-use arboard::Clipboard;
-use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -39,16 +38,17 @@ struct Args {
 }
 
 fn main() {
+    // Parse arguments and initialize shared variables
     let args = Args::parse();
+    let devnull = File::open("/dev/null").unwrap();
 
+    // Attempt to read the contents of the provided file from `args.path`
     let env_contents = read_to_string(&args.path).unwrap_or_else(|_| {
         println!("❓File with name `{}` not found", args.path);
         process::exit(0)
     });
 
-    let devnull = File::open("/dev/null").unwrap();
-
-    // Attempt to authenticate with 1Password
+    // Check whether the user has a valid 1Password session or not by listing users
     let signed_in = Command::new("op")
         .arg("user")
         .arg("list")
@@ -57,6 +57,7 @@ fn main() {
         .status()
         .expect("Unable to check authentication status for 1Password.");
 
+    // If there is no active session, prompt the user to login before using the application
     if !signed_in.success() {
         println!(
             "❌ You are currently signed out of 1Password. Please sign in to continue.\n   To sign in, run `eval $(op signin)` before running this command"
@@ -64,7 +65,7 @@ fn main() {
         process::exit(0)
     }
 
-    // Execute the `op item create` command
+    // Execute the `op item create` command to create a new secure note
     let create_item = Command::new("op")
         .arg("item")
         .arg("create")
@@ -72,49 +73,54 @@ fn main() {
         .arg(format!("--title={}", args.path))
         .arg(format!("notesPlain={}", env_contents))
         .output()
-        .expect("Failed to create 1Password entry");
+        .expect("❌ Failed to create 1Password entry");
 
-    // Convert output to a String
-    let output_str =
-        String::from_utf8(create_item.stdout).expect("Failed to convert output to string");
+    // Convert the result of the creation to a string
+    let result =
+        String::from_utf8(create_item.stdout).expect("❌ Failed to create 1Password entry");
 
-    // Extract the ID from the output
+    // Extract the id from the newly created secure note
     let id_prefix = "ID: ";
-    let id_start = output_str.find(id_prefix).expect("ID not found") + id_prefix.len();
-    let id_end = output_str[id_start..]
+    let id_start = result
+        .find(id_prefix)
+        .expect("❌ Failed to create 1Password entry")
+        + id_prefix.len();
+    let id_end = result[id_start..]
         .find('\n')
-        .unwrap_or(output_str.len() - id_start);
-    let item_id = &output_str[id_start..id_start + id_end].trim();
+        .unwrap_or(result.len() - id_start);
+    let item_id = &result[id_start..id_start + id_end].trim();
 
+    // Initialize a new instance of the 1Password CLI and append
+    // the item_id extracted from the new secure note
     let mut share_cmd = Command::new("op");
     share_cmd.arg("item").arg("share").arg(item_id);
 
-    // If `display_once` is set, add the flag to the command
+    // If the `--display-once` flag is set, add the `--view-once` argument
     if args.display_once {
         println!("\n🔒 Share link will expire after a single use");
         share_cmd.arg("--view-once");
     }
 
-    // If `email` is provided, add it to the command
+    // If the `--email` flag is set, add it to the command
     if let Some(email) = &args.email {
         println!("📧 Sharing with email address: {}", email);
         share_cmd.arg(format!("--emails={}", email));
     }
 
-    let share_item = share_cmd.output().expect("Failed to create share link");
-
+    // Retrieve the result of the `op share item` command and convert it to a string
+    let share_item = share_cmd.output().expect("❌ Failed to create share link");
     let share_item_string =
-        String::from_utf8(share_item.stdout).expect("Failed to retrieve share link");
+        String::from_utf8(share_item.stdout).expect("❌ Failed to create share link");
 
+    // Trim the excess quotes and newlines from the share-link and
+    // display it to the user
     let share_link = share_item_string.trim_matches('"').trim();
-
     println!("🔗 Share link: {}", share_link);
 
+    // Initialize a new Clipboard modifier instance and set
+    // the text contents to the share-link
     let mut clipboard = Clipboard::new().unwrap();
     clipboard.set_text(share_link).unwrap();
 
-    println!(
-        "\n✅ `{}` has been shared successfully! The share link has been copied to your clipboard 📋",
-        args.path
-    );
+    println!( "\n✅ `{}` has been shared successfully! The share link has been copied to your clipboard 📋", args.path);
 }
