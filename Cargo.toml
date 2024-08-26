@@ -1,7 +1,13 @@
 [package]
-name = "send_env"
+name = "sendenv"
 version = "0.1.0"
+description = "Quickly and securely share `.env` files using 1Password"
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/juliangra/sendenv"
+readme = "README.md"
+categories = ["development-tools", "config", "authentication"]
+keywords = ["env", "environment variables", "share", "1Passwod"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
