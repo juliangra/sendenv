@@ -52,4 +52,4 @@ This project is licensed under the MIT License.
 
 ---
 
-💡 Need help? Open an issue or contact [me via email](mailto:juliangrande@gmx.com)
+💡 Need help? Open an issue or contact [me via email](mailto:juliangr@stud.ntnu.no)
