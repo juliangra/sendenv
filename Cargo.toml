@@ -8,7 +8,7 @@ repository = "https://github.com/juliangra/sendenv"
 readme = "README.md"
 authors=["juliangra"]
 categories = ["development-tools", "config", "authentication"]
-keywords = ["env", "environment variables", "share", "1Passwod", "cli", "secret", "secrets"]
+keywords = ["env", "share", "1Password", "cli", "secrets"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
